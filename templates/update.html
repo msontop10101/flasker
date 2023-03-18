@@ -9,23 +9,15 @@
 {% endfor %}
 
 
-<form method="POST">
+<form action="/update/{{ name_to_update.id }}" method="POST">
     {{ form.hidden_tag() }}
     {{ form.name.label(class="form-label") }}
-    {{ form.name(class="form-control") }}
+    {{ form.name(class="form-control",value=name_to_update.name) }}
     <br />
     {{ form.email.label(class="form-label") }}
-    {{ form.email(class="form-control") }}
+    {{ form.email(class="form-control", value=name_to_update.email) }}
     <br />
     {{ form.submit(class="btn btn-secondary") }}
 </form>
 <br/>
-
-<ul style="list-style-type: none;">
-    {% for our_user in our_users %}
-    <div class="shadow-sm p-3 mb-1 bg-body-tertiary rounded">
-        <li>{{ our_user.id }} - <a href="{{ url_for('update', id=our_user.id) }}">{{ our_user.name }}</a> - {{ our_user.email }}</li>
-    </div>
-    {% endfor %}
-</ul>
 {% endblock %}
