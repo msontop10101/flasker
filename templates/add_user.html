@@ -17,6 +17,9 @@
     {{ form.email.label(class="form-label") }}
     {{ form.email(class="form-control") }}
     <br />
+    {{ form.favorite_color.label(class="form-label") }}
+    {{ form.favorite_color(class="form-control") }}
+    <br />
     {{ form.submit(class="btn btn-secondary") }}
 </form>
 <br/>
@@ -24,7 +27,7 @@
 <ul style="list-style-type: none;">
     {% for our_user in our_users %}
     <div class="shadow-sm p-3 mb-1 bg-body-tertiary rounded">
-        <li>{{ our_user.id }} - <a href="{{ url_for('update', id=our_user.id) }}">{{ our_user.name }}</a> - {{ our_user.email }}</li>
+        <li>{{ our_user.id }} - <a href="{{ url_for('update', id=our_user.id) }}">{{ our_user.name }}</a> - {{ our_user.email }} - {{ our_user.favorite_color }} - <a href="{{ url_for('delete', id=our_user.id) }}">Delete</a></li>
     </div>
     {% endfor %}
 </ul>

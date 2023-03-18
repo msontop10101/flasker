@@ -4,6 +4,7 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from flask_migrate import Migrate
 
 
 
@@ -17,6 +18,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SECRET_KEY'] = 'my supereei10'
 #Initialize the database
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 
 
@@ -25,6 +27,7 @@ class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
     email = db.Column(db.String(200), nullable=False, unique=True)
+    favorite_color = db.Column(db.String(120))
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
 
 #Create A String
@@ -35,6 +38,7 @@ def __repr__(self):
 class UserFrom(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired()])
+    favorite_color = StringField('Favorite Color')
     submit = SubmitField('Submit')
 
 #Update database record
@@ -45,6 +49,7 @@ def update(id):
     if request.method == 'POST':
         name_to_update.name = request.form['name']
         name_to_update.email = request.form['email']
+        name_to_update.favorite_color = request.form['favorite_color']
         try: 
             db.session.commit()
             flash('User Updated Successfully!')
@@ -61,6 +66,28 @@ def update(id):
                                    form = form,
                                    name_to_update = name_to_update)
 
+#Delete record from databse 
+@app.route('/delete/<int:id>', methods=['GET','POST','DELETE'])
+def delete(id):
+    user_to_delete = Users.query.get_or_404(id)
+    name = None
+    form = UserFrom()
+    try: 
+        db.session.delete(user_to_delete)
+        db.session.commit()
+        flash('User Deleted Successfully!')
+        our_users=Users.query.order_by(Users.date_added)
+        return render_template('add_user.html', 
+                           form=form,
+                           name=name,
+                           our_users=our_users)
+    except:
+        flash('Error Occured!')
+        our_users=Users.query.order_by(Users.date_added)
+        return render_template('add_user.html', 
+                           form=form,
+                           name=name,
+                           our_users=our_users)
 
 
 class NamerForm(FlaskForm):
@@ -102,12 +129,13 @@ def add_user():
     if form.validate_on_submit():
         user = Users.query.filter_by(email=form.email.data).first()
         if user == None:
-            user = Users(name=form.name.data, email=form.email.data)
+            user = Users(name=form.name.data, email=form.email.data, favorite_color=form.favorite_color.data)
             db.session.add(user)
             db.session.commit()
         name = form.name.data
         form.name.data = ''
         form.email.data = ''
+        form.favorite_color.data = ''
         flash('User added successfully!')
     our_users=Users.query.order_by(Users.date_added)
     return render_template('add_user.html', 
