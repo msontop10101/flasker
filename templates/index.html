@@ -1,3 +1,6 @@
+{% extends 'base.html' %}
+{% block content%}
+
 <h1>Hello World!</h1>
 <p>I'm learning flask and i'll be through with it in 3 days!!!</p>
 <p>{{ stuff|safe }}</p>
@@ -7,3 +10,5 @@
 <li>{{p}}</li>
 {% endfor %}
 </ul>
+
+{% endblock %}
