@@ -10,15 +10,18 @@
 
 {% if name %}
 <h2>Hello {{ name }}!!</h2>
+<br/>
+<img src="{{ url_for('static', filename='images/simba.png') }}" width="200px"/>
 {% else %}
-<h2>What's your name?</h2>
+<h1>What's your name?</h1>
 <form method="POST">
     {{ form.hidden_tag() }}
-    {{ form.name.label(class="form-label") }}
+    <!-- {{ form.name.label(class="form-label") }} -->
     {{ form.name(class="form-control") }}
     <br/>
     {{ form.submit(class="btn btn-secondary") }}
 </form>
 {% endif %}
+<p id="demo">This is stuff....</p>
 
 {% endblock %}
