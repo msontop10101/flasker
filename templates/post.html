@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content%}
+
+
+<div class="shadow-sm p-3 mb-1 bg-body-tertiary rounded">
+    <h1>{{ post.title|capitalize }}</h1>
+    <p><small>{{ post.author }} -- {{ post.date_posted }}</small></p>
+    <p>{{ post.content }}</p><br />
+    <a href="{{ url_for('posts' )}}"><button type="button" class="btn btn-secondary">Go back</button></a>
+</div>
+<br/>
+
+
+{% endblock %}

@@ -10,6 +10,7 @@
     <h2>{{ post.title|capitalize }}</h2>
     <p><small>{{ post.author }} -- {{ post.date_posted }}</small></p>
     <p>{{ post.content }}</p><br />
+    <a href="{{ url_for('post', id=post.id )}}"><button type="button" class="btn btn-secondary">View Post</button></a>
 </div>
 <br/>
 {% endfor %}
