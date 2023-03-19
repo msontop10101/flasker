@@ -90,6 +90,12 @@ def add_post():
     return render_template('add_post.html',
                            form=form)
 
+#Posts Route
+@app.route('/posts')
+def posts():
+    posts = Post.query.order_by(Post.date_posted)
+    return render_template('posts.html', posts=posts)
+
 #Update database record
 @app.route('/update/<int:id>', methods=['GET','POST'])
 def update(id):
