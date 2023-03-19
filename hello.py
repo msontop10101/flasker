@@ -34,7 +34,7 @@ class Users(db.Model):
 
     @property
     def password(self):
-        raise AttributeError('Password is not a readable attr!')
+        raise AttributeError('Password is nomett a readable attr!')
     @password.setter
     def password(self, password):
         self.password_hash = generate_password_hash(password)
