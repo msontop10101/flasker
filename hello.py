@@ -124,7 +124,21 @@ def edit_post(id):
                            form=form,
                            post=post)
 
-    
+#Delete blog post 
+@app.route('/posts/delete/<int:id>')
+def delete_post(id):
+    post_to_delete = Post.query.get_or_404(id)
+    try:
+        db.session.delete(post_to_delete)
+        db.session.commit()
+        flash('Post was successfully deleted')
+        posts = Post.query.order_by(Post.date_posted)
+        return render_template('posts.html', posts=posts)
+    except:
+        flash('Error Occured!')
+        posts = Post.query.order_by(Post.date_posted)
+        return render_template('posts.html', posts=posts)
+
 
 
 #Update database record
