@@ -108,6 +108,11 @@ class NamerForm(FlaskForm):
     name = StringField('What\'s your name?', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
+class PasswordForm(FlaskForm):
+    email = StringField('Enter your email', validators=[DataRequired()])
+    password = PasswordField('Enter your password', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
 #Create a route decorator
 @app.route('/')
 
@@ -121,6 +126,31 @@ def index():
 @app.route('/user/<name>')
 def user(name):
     return render_template('user.html', user_name=name)
+
+
+@app.route('/test_pw', methods=['GET', 'POST'])
+def test_pw():
+    email = None
+    password = None
+    password_to_check = None
+    passed = None
+    form = PasswordForm()
+    if form.validate_on_submit():
+        email = form.email.data
+        password = form.password.data
+        #Look up the user
+        password_to_check = Users.query.filter_by(email=email).first()
+        #Check password
+        passed = check_password_hash(password_to_check.password_hash,password)
+
+        form.email.data = ''
+        form.password.data = ''
+    return render_template('test_pw.html',
+                           email = email,
+                           password = password,
+                           password_to_check = password_to_check,
+                           passed = passed,
+                           form = form)
 
 #Create Name Page
 @app.route('/name', methods=['GET', 'POST'])
@@ -158,6 +188,9 @@ def add_user():
                            form=form,
                            name=name,
                            our_users=our_users)
+
+
+
 #Create custom error pages
 
 #Invalid URL
