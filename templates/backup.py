@@ -1,22 +1,12 @@
 from flask import Flask, render_template, flash, request, redirect, url_for
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField, PasswordField, TextAreaField
+from wtforms.validators import DataRequired, EqualTo
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import MetaData
 from datetime import datetime
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
-from webforms import LoginForm, UserFrom, PostForm, NamerForm, PasswordForm
-
-
-convention = {
-    "ix": 'ix_%(column_0_label)s',
-    "uq": "uq_%(table_name)s_%(column_0_name)s",
-    "ck": "ck_%(table_name)s_%(constraint_name)s",
-    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-    "pk": "pk_%(table_name)s"
-}
-
-
 
 
 
@@ -28,11 +18,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 #Secret Key for Form
 app.config['SECRET_KEY'] = 'my supereei10'
 #Initialize the database
-# db = SQLAlchemy(app)
-
-metadata = MetaData(naming_convention=convention)
-db = SQLAlchemy(app, metadata=metadata)
-migrate = Migrate(app,db,render_as_batch=True)
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 #Flask Login Moves 
 login_manager = LoginManager()
@@ -43,7 +30,11 @@ login_manager.login_view = 'login'
 def load_user(user_id):
     return Users.query.get(int(user_id))
 
-
+#Create LoginForm 
+class LoginForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Login')
 
 #Create Login 
 @app.route('/login', methods=['GET','POST'])
@@ -77,19 +68,6 @@ def logout():
 def dashboard():
     return render_template('dashboard.html')
 
-
-    
-#Create a blog post
-class Post(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255))
-    content = db.Column(db.Text)
-    # author = db.Column(db.String(255))
-    date_posted = db.Column(db.DateTime, default=datetime.utcnow)
-    slug = db.Column(db.String(255))
-    #Foreign key refering to the primary key of the user
-    poster_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-
 #Create Model
 class Users(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -100,7 +78,6 @@ class Users(db.Model, UserMixin):
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     #Password workings
     password_hash = db.Column(db.String(128))
-    posts = db.relationship('Post', backref='poster')
 
     @property
     def password(self):
@@ -111,13 +88,37 @@ class Users(db.Model, UserMixin):
 
     def verify_password(self, password):
         return check_password_hash(self.password_hash,password)
+    
+#Create a blog post
+class Post(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255))
+    content = db.Column(db.Text)
+    author = db.Column(db.String(255))
+    date_posted = db.Column(db.DateTime, default=datetime.utcnow)
+    slug = db.Column(db.String(255))
 
 #Create A String
 def __repr__(self):
     return '<Name %r>' % self.name
 
+#Create a form class
+class UserFrom(FlaskForm):
+    username = StringField('Userame', validators=[DataRequired()])
+    name = StringField('Name', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired()])
+    favorite_color = StringField('Favorite Color')
+    password_hash = PasswordField('Password', validators=[DataRequired(), EqualTo('password_hash2', message='password must match!')])
+    password_hash2 = PasswordField('Confirm Password', validators=[DataRequired()])
+    submit = SubmitField('Submit')
 
-
+#Create Post From class
+class PostForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired()])
+    content = TextAreaField('Content', validators=[DataRequired()])
+    author = StringField('Author', validators=[DataRequired()])
+    slug = StringField('Slug', validators=[DataRequired()])
+    submit = SubmitField('Submit')
 
 #Blog post route 
 @app.route('/add_post', methods=['GET', 'POST'])
@@ -125,12 +126,11 @@ def __repr__(self):
 def add_post():
     form = PostForm()
     if form.validate_on_submit():
-        poster = current_user.id
-        post = Post(title=form.title.data, content=form.content.data, poster_id=poster, slug=form.slug.data)
+        post = Post(title=form.title.data, content=form.content.data, author=form.author.data, slug=form.slug.data)
         #Clear form 
         form.title.data = ''
         form.content.data = ''
-        # form.author.data = ''
+        form.author.data = ''
         form.slug.data = ''
         #Add post to database
         db.session.add(post)
@@ -159,7 +159,7 @@ def edit_post(id):
     form = PostForm()
     if form.validate_on_submit():
         post.title = form.title.data
-        # post.author = form.author.data
+        post.author = form.author.data
         post.slug = form.slug.data
         post.content = form.content.data
         db.session.add(post)
@@ -167,7 +167,7 @@ def edit_post(id):
         flash('Post has been updated!')
         return redirect(url_for('post', id=post.id))
     form.title.data = post.title
-    # form.author.data = post.author
+    form.author.data = post.author
     form.slug.data = post.slug
     form.content.data = post.content
     return render_template('edit_post.html',
@@ -240,6 +240,15 @@ def delete(id):
                            name=name,
                            our_users=our_users)
 
+
+class NamerForm(FlaskForm):
+    name = StringField('What\'s your name?', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
+class PasswordForm(FlaskForm):
+    email = StringField('Enter your email', validators=[DataRequired()])
+    password = PasswordField('Enter your password', validators=[DataRequired()])
+    submit = SubmitField('Submit')
 
 #Create a route decorator
 @app.route('/')

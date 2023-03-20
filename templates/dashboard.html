@@ -22,6 +22,7 @@
     <strong>Favorite_Color: </strong>{{current_user.favorite_color}}<br />
     <strong>Date_Joined: </strong>{{current_user.date_added}}<br /><br/>
     <a href="{{ url_for('logout') }}"><button type="button" class="btn btn-secondary">Logout</button></a>
+    <a href="{{ url_for('update', id=current_user.id) }}"><button type="button" class="btn btn-secondary">Update Profile</button></a>
 </div>
 
 
