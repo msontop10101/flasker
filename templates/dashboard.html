@@ -10,8 +10,19 @@
 
 
 <h1>Dashboard</h1>
-<br/>
-<p>You are logged in!</p>
-<a href="{{ url_for('logout') }}">Logout</a>
+<br />
+
+<br />
+<div class="shadow-sm p-3 mb-1 bg-body-tertiary rounded">
+    Welcome to your dashboard...<br/>
+    <strong>Name: </strong>{{current_user.name}}<br />
+    <strong>Username: </strong>{{current_user.username}}<br />
+    <strong>User_id: </strong>{{current_user.id}}<br />
+    <strong>Email: </strong>{{current_user.email}}<br />
+    <strong>Favorite_Color: </strong>{{current_user.favorite_color}}<br />
+    <strong>Date_Joined: </strong>{{current_user.date_added}}<br /><br/>
+    <a href="{{ url_for('logout') }}"><button type="button" class="btn btn-secondary">Logout</button></a>
+</div>
+
 
 {% endblock %}
