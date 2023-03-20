@@ -13,9 +13,6 @@
     {{ form.title.label(class="form-label") }}
     {{ form.title(class="form-control") }}
     <br />
-    {{ form.author.label(class="form-label") }}
-    {{ form.author(class="form-control") }}
-    <br />
     {{ form.slug.label(class="form-label") }}
     {{ form.slug(class="form-control") }}
     <br />
@@ -25,15 +22,8 @@
     {{ form.submit(class="btn btn-secondary") }}
     <br/>
 </form>
-
-
-<!-- <div class="shadow-sm p-3 mb-1 bg-body-tertiary rounded">
-    <h1>{{ post.title|capitalize }}</h1>
-    <p><small>{{ post.author }} -- {{ post.date_posted }}</small></p>
-    <p>{{ post.content }}</p><br />
-    <a href="{{ url_for('posts' )}}"><button type="button" class="btn btn-secondary">Go back</button></a>
-</div>
-<br/> -->
+{{ ckeditor.load() }}
+{{ ckeditor.config(name='body') }}
 
 
 {% endblock %}

@@ -5,7 +5,9 @@ from datetime import datetime
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
-from webforms import LoginForm, UserFrom, PostForm, NamerForm, PasswordForm
+from webforms import LoginForm, UserFrom, PostForm, NamerForm, PasswordForm, SearchForm
+from flask_ckeditor import CKEditor
+
 
 
 convention = {
@@ -29,6 +31,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SECRET_KEY'] = 'my supereei10'
 #Initialize the database
 # db = SQLAlchemy(app)
+ckeditor = CKEditor(app)
 
 metadata = MetaData(naming_convention=convention)
 db = SQLAlchemy(app, metadata=metadata)
@@ -43,7 +46,23 @@ login_manager.login_view = 'login'
 def load_user(user_id):
     return Users.query.get(int(user_id))
 
+#Pass Stuff to Navgar
+@app.context_processor
+def base():
+    form = SearchForm()
+    return dict(form=form)
 
+#Create search Function
+@app.route('/search', methods=['POST'])
+def search():
+    form = SearchForm()
+    if form.validate_on_submit():
+        #Get Data from submitted form
+        post.searched = form.searched.data
+        #Query the database 
+        return render_template('search.html',
+                               form=form,
+                               searched = post.searched) 
 
 #Create Login 
 @app.route('/login', methods=['GET','POST'])
@@ -166,26 +185,35 @@ def edit_post(id):
         db.session.commit()
         flash('Post has been updated!')
         return redirect(url_for('post', id=post.id))
-    form.title.data = post.title
-    # form.author.data = post.author
-    form.slug.data = post.slug
-    form.content.data = post.content
-    return render_template('edit_post.html',
-                           form=form,
-                           post=post)
+    if current_user.id == post.poster_id:
+        form.title.data = post.title
+        # form.author.data = post.author
+        form.slug.data = post.slug
+        form.content.data = post.content
+        return render_template('edit_post.html',
+                               form=form,
+                               post=post)
+    else:
+        posts = Post.query.order_by(Post.date_posted)
+        return render_template('posts.html', posts=posts)
 
 #Delete blog post 
 @app.route('/posts/delete/<int:id>')
 def delete_post(id):
     post_to_delete = Post.query.get_or_404(id)
-    try:
-        db.session.delete(post_to_delete)
-        db.session.commit()
-        flash('Post was successfully deleted')
-        posts = Post.query.order_by(Post.date_posted)
-        return render_template('posts.html', posts=posts)
-    except:
-        flash('Error Occured!')
+    id = current_user.id
+    if id == post_to_delete.poster.id:
+        try:
+            db.session.delete(post_to_delete)
+            db.session.commit()
+            flash('Post was successfully deleted')
+            posts = Post.query.order_by(Post.date_posted)
+            return render_template('posts.html', posts=posts)
+        except:
+            flash('Error Occured!')
+            posts = Post.query.order_by(Post.date_posted)
+            return render_template('posts.html', posts=posts)
+    else:
         posts = Post.query.order_by(Post.date_posted)
         return render_template('posts.html', posts=posts)
 

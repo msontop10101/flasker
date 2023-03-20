@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content%}
+{{ ckeditor.load() }}
 
 {% for message in get_flashed_messages() %}
 <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -21,7 +22,9 @@
     {{ form.content(class="form-control", rows='5') }}
     <br />
     {{ form.submit(class="btn btn-secondary") }}
-    <br/>
+    <br />
 </form>
+{{ ckeditor.load() }}
+{{ ckeditor.config(name='body') }}
 
 {% endblock %}
